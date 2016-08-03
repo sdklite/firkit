@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.didi.sdk.logging.test.logcat"
+    android:versionCode="1"
+    android:versionName="1.0.0">
+
+    <uses-sdk
+        android:minSdkVersion="9"
+        android:targetSdkVersion="21" />
+
+    <application>
+        <meta-data
+            android:name="im.fir.API_TOKEN"
+            android:value="9687bd2dff45c754838d8e4c760e2bd8" />
+    </application>
+
+</manifest>
