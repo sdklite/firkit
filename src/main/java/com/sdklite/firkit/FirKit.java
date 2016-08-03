@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 
@@ -153,7 +154,7 @@ public abstract class FirKit {
 
     private static String getFirApiToken(final Context context) {
         try {
-            final ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), 0);
+            final ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             if (null == appInfo.metaData || !appInfo.metaData.containsKey(FIR_API_TOKEN)) {
                 throw new RuntimeException("FIR_API_TOKEN not found in metadata");
             }
