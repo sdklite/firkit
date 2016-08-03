@@ -42,6 +42,7 @@ public abstract class FirKit {
         final Context app = context.getApplicationContext();
         final String pkg = app.getPackageName();
         final String token = getFirApiToken(app);
+        final int currentVersion = getVersionCode(app);
 
         return new ApplicationManager() {
             @Override
@@ -63,7 +64,7 @@ public abstract class FirKit {
             }
 
             @Override
-            public void install(final String url) {
+            public void install(final String url, final Callback<?> callback) {
                 // download from the specified url
                 final DownloadManager dm = (DownloadManager) app.getSystemService(Context.DOWNLOAD_SERVICE);
                 final DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
@@ -86,10 +87,42 @@ public abstract class FirKit {
                                 installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
                                 installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 app.startActivity(intent);
+
+                                if (null != callback) {
+                                    callback.onSuccess(null);
+                                }
                             }
                         }
                     }
                 }, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+            }
+
+            @Override
+            public void upgrade(final Version version, final Callback<?> callback) {
+                if (null == version) {
+                    this.latest(new Callback<Version>() {
+                        @Override
+                        public void onFailure(final Exception e) {
+                            if (null != callback) {
+                                callback.onFailure(e);
+                            }
+                        }
+
+                        @Override
+                        public void onSuccess(final Version version) {
+                            if (version.getVersionCode() > currentVersion) {
+                                install(version.getInstallUrl(), callback);
+                            }
+                        }
+                    });
+                } else if (version.getVersionCode() > currentVersion) {
+                    this.install(version.getInstallUrl(), callback);
+                }
+            }
+
+            @Override
+            public int getLocalVersionCode() {
+                return currentVersion;
             }
         };
     }
@@ -128,6 +161,14 @@ public abstract class FirKit {
             return appInfo.metaData.getString(FIR_API_TOKEN);
         } catch (final NameNotFoundException e) {
             throw new RuntimeException("FIR_API_TOKEN not found in metadata", e);
+        }
+    }
+
+    private static int getVersionCode(final Context context) {
+        try {
+            return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
+        } catch (final NameNotFoundException e) {
+            return -1;
         }
     }
 }

@@ -204,11 +204,15 @@ public interface ApplicationManager {
         }
     }
 
+    public int getLocalVersionCode();
+
     public void latest(final Callback<Version> callback);
 
     public void list(final Callback<List<Application>> callback);
 
     public void get(final String id, final Callback<Application> callback);
 
-    public void install(final String url);
+    public void upgrade(final Version version, final Callback<?> callback);
+
+    public void install(final String url, final Callback<?> callback);
 }
