@@ -87,7 +87,7 @@ public abstract class FirKit {
                                 final Intent installIntent = new Intent(Intent.ACTION_VIEW);
                                 installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
                                 installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                app.startActivity(intent);
+                                app.startActivity(installIntent);
 
                                 if (null != callback) {
                                     callback.onSuccess(null);
