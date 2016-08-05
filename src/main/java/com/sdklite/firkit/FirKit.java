@@ -1,5 +1,6 @@
 package com.sdklite.firkit;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,6 +19,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
+import android.os.Environment;
 
 public abstract class FirKit {
 
@@ -67,10 +69,13 @@ public abstract class FirKit {
             @Override
             public void install(final String url, final Callback<?> callback) {
                 // download from the specified url
+                final Uri uri = Uri.parse(url);
+                final Uri dest = Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), uri.getLastPathSegment() + ".apk"));
                 final DownloadManager dm = (DownloadManager) app.getSystemService(Context.DOWNLOAD_SERVICE);
-                final DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
+                final DownloadManager.Request request = new DownloadManager.Request(uri)
                         .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI)
-                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
+                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN)
+                        .setDestinationUri(dest);
                 app.registerReceiver(new BroadcastReceiver() {
                     private final long downloadId = dm.enqueue(request);
 
@@ -83,9 +88,8 @@ public abstract class FirKit {
                                 app.unregisterReceiver(this);
 
                                 // install package
-                                final Uri uri = dm.getUriForDownloadedFile(downloadId);
                                 final Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                                installIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+                                installIntent.setDataAndType(dest, "application/vnd.android.package-archive");
                                 installIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 app.startActivity(installIntent);
 
